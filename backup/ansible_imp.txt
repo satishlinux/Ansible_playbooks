@@ -1,0 +1,639 @@
+Ansible is agent less, no need to install any agent on  client/Nodes
+Large number of modules pre defined module are availabe for use .
+
+docs.ansible.com
+
+Ansible uses SSH connection to connect and work with remote nodes 
+we can create SSH connection 2 ways
+
+  -> password authentication 
+  -> passwordless authentication 
+
+provide the IP/FQDN remove servers in the inventary files
+
+simple test the connectivity: "ansible all -m ping"
+
+create one user across all the servers or  use root 
+
+Ansible inventory file defines the list of hosts.
+
+Ansible Directory structure
+
+#/etc/ansible
+->ansible.cfg
+->hosts
+->roles
+
+[root@bcv51s2d-ans-master-zeu ~]# ansible --version
+ansible 2.7.10
+  config file = None
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Nov 20 2015, 02:00:19) [GCC 4.8.5 20150623 (Red Hat 4.8.5-4)]
+[root@bcv51s2d-ans-master-zeu ~]#
+
+
+Dynamiv inventory:
+ansible all -m ping -i <inventory_filename>
+
+HostKey checking disable 
+
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+[defaults]
+host_key_checking = false //ansible.conf file enable as "true"
+
+Ansible to work with  few servers 
+ansible ser1:ser2:ser3 -m ping 
+
+
+->Inventory file with groups 
+
+[db_oracle]
+localhost
+Server1
+
+[db_mysql]
+server2
+server3
+
+->group of groups
+
+[db:children]
+db_oracle
+db_mysql
+
+module: when we need to perform any tasks or action through module will perform 
+
+
+ sudo yum install epel-release//  yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+pip2 install ansible
+
+
+Ansible Ad-Hoc commands
+
+Ad-hoc command is the one liner ansible command that perform on task  one host/groups
+
+ansible db:web_server -m shell -a "uptime"
+ansible db:web_server -m shell -a "free -m"
+
+ansible -i[inventory] server/groups -m[module] -a [agrument_value]
+
+
+Module is a program to execute the required tasks
+
+
+Ansible.cfg file:
+[defaults] 
+
+inventory = ./hosts
+host_key_checking = False
+Forks      = 1 // execute the 1 server at a time serially , If we are not giving the fork value it will execute the 5 servers  at a time parlally 
+
+
+Ansible follows push mechanisim and it is a agent less architecture.
+
+ansible	db -m copy -a " content='this is copy file' dest=/tmp/exmp.txt backup=yes" //It will create the file and backup the existing file 
+ansible	db -m copy "content='this is copy file \n' dest=/tmp/exmp.txt backup=yes" 
+ansible test -m copy -a "content='this is my test1\n' dest=/tmp/test.txt  group=root  backup=yes" -b
+
+//download a file from the ansible managed notes to ansible engine server 
+
+ansible db -m fetch -a "source=/tmp/demo.txt dest=./new_demo/"
+
+ansible db -m fetch -a "source=/tmp/demo.txt dest=./new_demo/{{inventory_hostname}}_demo.txt flat=yes" 
+
+
+ansible db -m file -a "path=/tmp/test.txt state=touch" //create empty file
+ansible db -m file -a "path=/tmp/test.txt state=touch mode="0777""
+
+ansible db -m file -a "path=/tmp/test.txt state=absent"
+
+ansible db -m file -a "path=/tmp/test.txt state=directory"
+/
+ansible db -m file -a "path=/etc/test.txt state=directory " -b
+
+ansible db -m ping ---list-hosts
+
+Goto the files modules in ansible website to know more 
+
+ansible db -m yum -a "name=git state=latest" -b
+
+command module is nothing but the SHELL module
+ansible db -m command -a "uptime" 
+what is the  default module for the ansible is "command" module,ansible default module is command module 
+command module will not work with special operaters(> ,-,&,:
+special operators/ environment variables are work with SHELL module, 
+Command module is more secure compare to SHELL module 
+
+
+Ansible Facts are noting but information about managed nodes like: OS distribution, release, processor, python, etc
+
+ansible db -m setup
+ansible db -m setup a "filter=ansible_mounts"
+
+
+there are two types of ansible facts
+default facts
+
+custom facts (To get the user defined required facts)
+-> Create /etc/ansible/facts.d on manged nodes
+-> inside of facts.d create onemore facts files as .fact
+-> the output of fact file should be a json
+-> the fact file should have execution permission
+
+Ansible Inventory:
+
+Collection of hosts is known as "Ansible Inventory"
+there are 2 types of inventory 
+->Static Inventory (ansible -i inventory all -m ping)
+->Dynamic Inventory ( It will fetch the IP address's automatically)
+
+
+Raw module execution managed doesn't have python package.
+ansible data_center -m raw -a "uptime"
+ansible data_center -m raw -a "scp soure  destination"
+
+
+ansible 54.87.164.214 -m ping -k //it will ask for the password (Password Authentication)
+
+ansible 54.87.164.214 -m ping -k -b -K //it will ask for the SSH password and sudo previlge password
+pP
+Work with differnet user on managed nodes:
+ansible 54.87.164.214 -m file -a "src=abc.txt state=touch" -k -u abc  // -k( Remote-password) -u( Remote-user)
+
+Ansible Variables:
+Variables are used to store the data
+Ansible variable  names should be latters,numbers,underscore they should always start with letter.
+Types of Differnet Variables
+-> Default Variables 
+-> Inventory Vars(Host Vars and Group Vars)
+-> Facts and Local Facts
+-> Register vars etc...
+
+Default Variables
+Debug Module:  it will display the message or it will display the variable value
+ansible all -m bebug -a "msg='This is debug module'"
+ansible all -m debug -a "var={{inventory_hostname}}"
+ansible all -m debug -a "var={{inventory_hostname_short}}"
+anislbe localhost -m debug -a "var=groups"
+anislbe localhost -m debug -a "var=groups.keys()"
+
+Inventory Variable:
+
+[inventory]
+34.87.164.214 ansible_ssh_user=xyz ansible_ssh_pass=ansadmin@123 //hostwise varialbes
+
+//Group variables 
+[Inventory:vars]
+ansible_ssh_users=ansadmin
+ansible_ssh_pass=ansadmin@123
+[Inventory_1:vars]
+ansible_ssh_users=ansadmin
+ansible_ssh_pass=ansadmin@123
+[all:vars]
+ansible_ssh_user=ansadmin
+ansible_ssh_pass=ansadmin@123
+
+PlayBook:
+Playbook is usefull to perform multiple tasks and eliminates the limitation of Ad-hoc commands.
+In this basic form, a playbook is the yaml file consisting of one more tasks.
+Apart from the tasks, we can also include variables, files , templates 
+It is very easy to understand a yaml files
+
+
+concent:
+Task 
+play
+Playbook
+
+Write playbook different tasks in different target hosts 
+
+
+How to run the playbook?
+How to verify the syntax's?
+How to run the playbook in Dry Run Mode?
+This mode does not make any changes to remote hosts.
+How to run the playbook using verbose mode 
+
+Print the msg using the playbook
+Debug:
+ This module prints thee statement during the execution 
+Debug module have 3 parameters 
+->msg
+->var
+->verbosity 
+
+---
+ - hosts: all
+   tasks:
+   #- debug: msg="welcome to Ansible"
+   - debug:
+      msg: "welcome to ansible"
+   - name: "Printing the variable value using the debug module 
+     debug: 
+       msg:"the host name is: {{inventory_hostname}}"
+       var: inventory_hostname
+
+
+Custom Variables:
+
+Ansible variable name should be letters,numbers,and underscores and they should start with letter 
+
+---
+ - hosts: localhost
+   vars:
+     x : 5
+     y : "Satish using Ansible server"
+   gather_facts: yes
+   tasks:
+#   - debug: msg="welcome to Ansible"
+   - debug:
+      #var: inventory_hostname
+      msg:
+       - "This is Ansible Test machine for the project LINCASE"
+       - "The hostname of remote server: {{inventory_hostname}}"
+       - "The value of this x is :{{x}}"
+       - "The value of this y is :{{y}}"
+       - "The value of this x is :{{x|type_debug}}"
+
+
+
+Ansible Data Structure:
+
+Data Structure or Data collection is used to store the multiple data/vaules.
+Scalar // (x=5)
+squence or list [] //  pakgs [ 'vim' , 'telnet' , 'wget' ]
+map or dictionary {} //web_server {'Linux' : 'httpd' , 'Ubuntu' : 'Apache2' ]
+
+---
+ - hosts: localhost
+   vars:
+   #  pakgs: [ 'vim' , 'telnet' , 'wget' ]
+    pakgs:
+     - 'vim'
+     - 'telent'
+     - 'wget'
+    #web_server: {'Linux': 'httpd' , 'Ubuntu': 'apache2'}
+    web_server:
+     'Linux': 'httpd'
+     'Ubuntu': 'apache2'
+   gather_facts: no
+
+   tasks:
+   - debug:
+       #var: pakgs
+       #var: pakgs[0]
+       #var: web_server.keys()
+       var: web_server['Linux']
+
+Usage of Register and Set_facts
+
+Register:  Ansible register will store the output of a module/task into a variable 
+           We can use them as differnet scenarios
+
+Set_fact:  define the new variable while writing the new tasks we can use set_fact
+
+---
+ - hosts: localhost
+   gather_facts: no
+   tasks:
+   - shell: " bash --version "
+     register: bash_var
+   - set_fact:
+       bash_version: "{{bash_var.stdout.split('\n')[0].split()[3]}}"
+   - debug:
+       var: bash_version
+
+rRead the variable and print using Ansible 
+
+var_prompt:
+ -name: user_name
+  prompt: Enter the username
+  private: no
+ -name: password
+  prompt: Enter the passowrd
+  private: no
+
+
+Read the variable form the file
+
+vi variable_value.yaml
+pkgs:
+ - 'Redhat' : 'httpd'
+ - 'Ubuntu' : 'Apache2'
+
+=========================
+---
+ - hosts: localhost
+   vars_files: variable_value.yaml
+
+   - name: Dispaly the variable value
+     debug: vars=pkgs
+           
+Type of varialbe files to store the data
+yaml file
+json file
+
+============================
+command Line Arguments:
+
+command line argiments are usefull to pass variable from the command line.
+We have pass differnet types of varibles in differnet format 
+>scalar
+>sequence
+>map
+>file with variables
+
+ansible-playbook cmd_line.yaml --extra-vars "x=34"
+ ansible-playbook command_line.yml -e  "x=5"
+---
+ - hosts: localhost
+   gather_facts: no
+   tasks:
+   - debug: var=x
+
+
+ansible-playbook command_line.yml -e  "x=5 y=10"
+---
+ - hosts: localhost
+   gather_facts: no
+   tasks:
+   - debug: 
+       msg: 
+        - "the value of X: {{x}}"
+        - "the value of Y: {{y}}"
+
+
+Install httpd and nginx packages using "command line arguments"
+ansible-playbook playbooks/cmdline_httpd.yaml -e "pkg=httpd req_state=absent"
+---
+ - hosts: localhost
+   gather_facts: false
+   become: yes
+   tasks:
+     - name: Install the package: {{pkg}}
+       yum:
+         name: "{{pkg}}"
+         state: "{{req_state}}"
+
+Usage of Gather Facts:
+---
+ - hosts: localhost
+   tasks:
+   - debug:
+     msg:
+      - "The os distrubution is: {{ansible_distribution}}"
+      - "The os name is: {{ansible_system}}"
+      - "The Os family is: {{ansible_os_family}}"
+
+      
+Inventory hostname and hostvar variables
+
+---
+ - hosts: localhost
+   gather_facts: false
+   tasks:
+   - debug: var=inventory_hostname
+   - debug: var=hostvars[inventory_hostname]
+
+
+Arthmatic Operators:
+
+---
+ - hosts: localhost
+   gather_facts: no
+   vars:
+     x : 5
+     y : "{{x+5}}"
+
+   tasks:
+   - debug:
+       msg:
+         - "The value of X: {{x}}"
+         - "The value of Y: {{y}}"
+
+
+
+filters and Methods of Ansible Playbook
+
+
+Comparison operators or relationship operators 
+- " x == y       = {{x==y}}"
+- " x != y       = {{x!=y}}"
+- " x < y       = {{x<y}}"    
+- " x > y       = {{x>y}}" 
+- " x >= y       = {{x>=y}}"
+- " x <= y       = {{x<=y}}"
+
+Membership operators
+in
+not in 
+
+x: [1,2,3] //List
+y: 5
+
+msg:
+ - "y in x: {{ y in x}}"
+ - "10 in x: {{ 10 in x}}"
+ - "y not x: {{ y not in x}}"
+
+Test Operators
+x is denifed: {{ x is defined }}
+z is undefined: {{ z is not defined }}
+my_path is directory {{ my_path is directory }}
+my_path is exists {{ my_path is exists }}
+my_path is link {{ my_path is link }}
+
+
+Logical Operators:
+
+and operator
+msg:
+ - x < y , y in p  {{ x < y and y in p }}
+
+or operator
+msg:
+ - "{{ (5 < 4) or (4<2) 0r (5==5) }}"
+
+not operator
+
+ - {{ not (4 > 1) }} // It will  dispaly the false result
+
+conditional Statements:
+
+when
+failed_when
+changed_when
+-------------------------------------
+- hosts: localhost
+  vars:
+   x : 5
+   y : 6
+   my_list : [4, 5, 6, 7]
+  tasks:
+  - debug:
+      msg:
+       - "the value of x: {{x}} , the value of y: {{y}}"
+    when: x == y
+  - debug:
+      msg: x is present in my_list
+    when: x in my_list
+==========================================
+---
+  - name: SImple play to install httpd
+    hosts: web_servers
+    gather_facts: true
+    #become: yes
+    tasks:
+      - name: Installing httpd using yum
+        yum:
+          name: httpd
+          state: present
+        when: ansible_distribution != "Ubuntu"   //(if condition)
+      - name: Istalling apache2 using apt
+        apt:
+          name: apache2
+          state: present
+        when: ansible_distribution == "Ubuntu"
+==============================================
+
+the inline conditional statements: (if else)
+
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    x : 5
+    y : 10
+    larger: "{{ x if(x>y) else y }}"
+  tasks:
+  - debug:
+      msg:
+       - "The larger number of X:{{x}} and Y:{{y}} is: {{x}}"
+    when: x>y
+  - debug:
+      msg:
+       - "The larger number of X:{{x}} and Y:{{y}} is: {{y}}"
+    when: y>x
+  - debug:
+      msg:
+       #- "The (inline) larger number of X:{{x}} and Y:{{y}} is: {{ x if(x>y) else y }}"
+       - "The (inline) larger number of X:{{x}} and Y:{{y}} is: {{larger}}"
+
+===========================================================================================
+Ansible Handlers:
+
+Ansible handlers are simple regular tasks in playbook
+
+---
+- hosts: localhost  //with out handlers
+  gather_facts: false
+  tasks:
+   - name: Installing httpd
+     yum: name=httpd state=latest
+     register: out
+   - debug: var=out
+   - name: Start httpd
+     service: name=httpd state=started
+     when: out.changed==true
+
+--- 
+- hosts: localhost    //With handlers
+  gather_facts: false
+  tasks:
+   - name: Installing httpd
+     yum: name=httpd state=latest
+     notify:
+        -  Start httpd
+  handlers:
+    - name: Start httpd
+      service: name=httpd state=started
+ 
+===============================================
+Ansible Loops ( It repeats the certain tasks using loops)
+
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+  - name: Install the package "{{item}}"
+    yum: 
+       name: "{{item}}" 
+       state: latest
+    loop:
+       - wget
+       - telnet
+       - httpd
+
+ ==================================================
+Ansible Tags: (Tag is usefull  to exeucte/skip  the required  tasks form the number of tasks
+
+--- 
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - debug: 
+         msg: " this is my first task"
+     tags: first
+     tags: common
+   - debug: 
+         msg: " this is my second task"
+      tags: second
+      tags: always   // It will exeucte the task always 
+   - debug: 
+         msg: " this is my third task"
+      tags:  third 
+  - debug: 
+         msg: " this is my forth task" 
+     tags: forth 
+     tags: common  // It will execute the common name related tags
+   - debug: 
+         msg: " this is my fifth task"
+      tags: fifth 
+      tags: never  // It will never  execute the tasks 
+
+===========================================================
+Error Handling 
+ Ansilbe normally has defaults that make sure to check the return code of the command /moules and it fails if the return code it non-zero
+---
+- hosts: localhost
+  ghather_facts: false
+  tasks:
+  - command: "ls -l /homee"
+    register: home_out
+    ignore_error: yes  ///
+  - debug: var=home_out
+  - command: "ls -l /tmp"
+    register: tmp_out
+  - debug: var=tmp_out
+  
+---
+- hosts: localhost
+  ghather_facts: false
+  tasks:
+   - name: starting the nginx serivce
+     service: 
+        - yum: name=nginx  state=started
+     ignore_error: yes                      ////
+   - name: Starting the httpd service
+     service:
+        - yum: name=httpd state=started
+ 
+---
+- hosts: localhost
+  gather_facts: alse
+  tasks:
+  - command: "ls /home"
+    register: home_out
+    failed_when: home_out.rc == 0 ///
+  - debug: var=home_out
+      
+
+Error handling with block and rescue
+
+
+
+
+
