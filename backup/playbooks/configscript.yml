@@ -1,0 +1,10 @@
+---
+- name: copying the  NOKIAConfSimEnv script to workstations
+  hosts: all
+  become: true
+
+  tasks:
+    - name: example copying files NokiaInternalRoot
+      copy:
+        src: /home/linc_ops/files/NOKIAConfSimEnv_rhel7
+        dest: /usr/local/sbin/NOKIAConfSimEnv_rhel7

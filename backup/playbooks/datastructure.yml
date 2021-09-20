@@ -1,0 +1,21 @@
+---
+ - hosts: localhost
+   vars: 
+   #  pakgs: [ 'vim' , 'telnet' , 'wget' ]
+    pakgs:
+     - 'vim'
+     - 'telent'
+     - 'wget'
+    #web_server: {'Linux': 'httpd' , 'Ubuntu': 'apache2'}
+    web_server:
+     'Linux': 'httpd'
+     'Ubuntu': 'apache2'
+   gather_facts: no
+
+   tasks:
+   - debug: 
+       #var: pakgs
+       #var: pakgs[0]
+       #var: web_server.keys()
+       var: web_server['Linux']
+       

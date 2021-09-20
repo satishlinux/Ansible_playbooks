@@ -1,0 +1,34 @@
+---
+- name: copying the  NOKIAConfSimEnv script to workstations
+  hosts: all
+  become: true
+
+  tasks:
+    - name: copy the enduser script file
+      copy:
+        src: /tmp/lincase/usr/local/sbin/NOKIAConfSimEnv_rhel7
+        dest: /usr/local/sbin/
+        remote_src: yes
+
+    - name: copy the systemd service file
+      copy:
+        src: /tmp/lincase/etc/systemd/system/dwdm1830-install-classic-sim.service
+        dest: /etc/systemd/system
+        remote_src: yes
+   
+    - name: create the softlink for the serivce file 
+      file:
+        src: /etc/systemd/system/dwdm1830-install-classic-sim.service
+        dest: /etc/systemd/system/default.target.wants/dwdm1830-install-classic-sim.service
+        state: link
+
+    - name: start the serive file
+      service:
+        name: dwdm1830-install-classic-sim.service
+        state: started
+ 
+    - name: comment the rc.local entry
+      replace:
+       path: /etc/rc.d/rc.local
+       regexp: '/usr/local/sbin/NOKIAConfSimEnv_rhel7'
+       replace: '#/usr/local/sbin/NOKIAConfSimEnv_rhel7'

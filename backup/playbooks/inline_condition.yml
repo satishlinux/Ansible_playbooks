@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    x : 5
+    y : 10
+    larger: "{{ x if(x>y) else y }}"
+  tasks:
+  - debug:
+      msg:
+       - "The larger number of X:{{x}} and Y:{{y}} is: {{x}}"
+    when: x>y
+  - debug:
+      msg:
+       - "The larger number of X:{{x}} and Y:{{y}} is: {{y}}"
+    when: y>x
+  - debug:
+      msg:
+       #- "The (inline) larger number of X:{{x}} and Y:{{y}} is: {{ x if(x>y) else y }}"
+       - "The (inline) larger number of X:{{x}} and Y:{{y}} is: {{larger}}"

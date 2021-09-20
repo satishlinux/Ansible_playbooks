@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  vars: 
+   x : 5
+   y : 6
+   my_list : [4, 5, 6, 7]
+  tasks:
+  - debug:
+      msg:
+       - "the value of x: {{x}} , the value of y: {{y}}"
+    when: x == y
+  - debug:
+      msg: x is present in my_list
+    when: x in my_list
+  - debug:
+      msg: "node is: {{inventory_hostname}} and the distrubution is: {{ansible_distribution}}"
+      
+

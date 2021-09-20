@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+   - name: Installing httpd
+     yum: name=httpd state=latest
+     notify: Start httpd
+     register: out
+   - debug: var=out
+  handlers:
+    - name: Start httpd
+      service: name=httpd state=started
+  #when: out.changed=true
+

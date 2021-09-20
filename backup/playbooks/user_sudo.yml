@@ -1,0 +1,8 @@
+---
+- name: local user creation execute script and get result
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Execute the script
+      script: /home/linc_ops/scripts/filesudo.sh

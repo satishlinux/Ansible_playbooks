@@ -1,0 +1,36 @@
+---
+- name: selective packages patchup
+  hosts: all
+  ignore_errors: yes
+  force_handlers: yes
+  become: true
+
+  tasks:
+   - name: Gather the rpm package facts
+     package_facts:
+       manager: auto
+   
+   - name: Import variables files
+     include_vars: vars/packages.yml
+
+   - name: Update package
+     ignore_errors: yes
+     yum:
+       name: "{{ item }}"
+       state: latest
+     loop: "{{ myvar | default([]) }}"
+     when: item in ansible_facts.packages
+     register: install_result
+
+   - name: Display installed packages result
+     debug:
+        var: install_result
+
+#   - name: Server FULL SECUIRTY PATCHup
+#      yum:
+#        name: '*'
+#        security: yes
+#        state: latest
+#      when: "'{{ patchup_sec }}' == 'Security'"
+#      tags: ['security'] 
+

@@ -1,0 +1,9 @@
+---
+ - hosts: all
+   gather_facts: no
+   become: yes
+   tasks:
+     - name: installing the packages {{pkg}}
+       yum:
+         name: "{{ pkg }}"
+         state: "{{ req_state }}"

@@ -1,0 +1,16 @@
+---
+- name: local user creation execute script and get result
+  hosts: all
+  become: true
+
+  tasks:
+    - name: example copying files NokiaInternalRoot
+      copy:
+        src: /home/linc_ops/files/NokiaInternalRootCA.cer
+        dest: /etc/pki/ca-trust/source/anchors/NokiaInternalRootCA.cer
+    - name: example copying files NokiaInternalSubCA07
+      copy:
+        src: /home/linc_ops/files/NokiaInternalSubCA07.cer
+        dest: /etc/pki/ca-trust/source/anchors/NokiaInternalSubCA07.cer
+    - name: Executing the command
+      command: /usr/bin/update-ca-trust

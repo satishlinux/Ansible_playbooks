@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  vars:
+    dest_path: "/usr/share/tomcat/webapps"
+    url_path: "https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war"
+  tasks:
+    - name: install the tomcat application 
+      yum: name=tomcat state=latest  
+    - name: start the tmocat service
+      service: name=tomcat state=started
+    
+    - name: Deploy the document root
+      get_url: url={{url_path}}  dest={{dest_path}}
+      notify: "restart tomcat"
+  handlers:
+    - name: Restart tomcat
+      service: name=tomcat state=restarted
+      listen: "restart tomcat"

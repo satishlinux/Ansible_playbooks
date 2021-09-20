@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  tasks:
+    - name: template example
+      template: src="/home/linc_ops/template/ex.j2"   dest="/tmp/satish.txt"
+   
+  
+

@@ -1,0 +1,13 @@
+---
+- name: update the sudoers file
+  hosts: all
+  become: true
+
+  tasks: 
+    - name: provide the sudo previliges to endusers
+      lineinfile:
+         path: /etc/sudoers
+         insertafter: 'chandraw'
+         line: "maziad          ALL = (ALL)     NOPASSWD: ALL"
+          
+      

@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  
+  tasks:
+    - name: template example
+      template: src="/home/linc_ops/template/host.j2"   dest="/etc/hosts"

@@ -1,0 +1,12 @@
+---
+- name: local user creation execute script and get result
+  hosts: all
+  become: true
+
+  tasks:
+    - name: add the user mig_gcp
+      user:
+        name: mig_gcp
+        comment: GCP migration
+        home: /var/user/mig_gcp
+        shell: /bin/bash 

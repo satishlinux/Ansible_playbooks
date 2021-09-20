@@ -1,0 +1,8 @@
+---
+ - hosts: localhost
+   tasks:
+   - debug:
+       msg:
+        - "The os distribution is: {{ansible_distribution}}"
+        - "The os family         : {{ansible_os_family}}"
+        - "the os name          : {{ansible_system}}"

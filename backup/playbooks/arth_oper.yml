@@ -1,0 +1,21 @@
+---
+ - hosts: localhost
+   gather_facts: no
+   vars:
+     x : 5
+     y : 10
+   tasks:
+   - debug:
+       msg: 
+        - "The value of X: {{x}}"
+        - "The value of Y: {{y}}"
+        - "{{x}} + {{y}} = {{x+y}}"
+        - "{{x}} - {{y}} = {{x-y}}"
+        - "{{x}} * {{y}} = {{x*y}}"
+        - "{{x}} / {{y}} = {{x/y}}"    
+        - " x == y       = {{x==y}}" #comparison operator
+        - " x != y       = {{x!=y}}"
+        - " x < y       = {{x<y}}"    
+        - " x > y       = {{x>y}}" 
+        - " x >= y       = {{x>=y}}"
+        - " x <= y       = {{x<=y}}"

@@ -1,0 +1,12 @@
+---
+ - hosts: localhost
+   gather_facts: no
+   tasks:
+   - shell: " uname -r "
+    # register: bash_var
+     register: kernel_var
+   #- set_fact:
+   #    bash_version: "{{bash_var.stdout.split('\n')[0].split()[3]}}"
+   - debug: 
+       #var: bash_version
+       var: kernel_var.stdout

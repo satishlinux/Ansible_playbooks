@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Install the multiple packages
+  become: true 
+  tasks:
+    - name: install the packages 
+      yum: name={{ item }} state=latest
+      with_items:
+        - wget
+        - httpd
+        - gcc
+        - wget
+      

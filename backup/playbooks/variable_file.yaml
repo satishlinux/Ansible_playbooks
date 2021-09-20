@@ -1,0 +1,11 @@
+---
+ - hosts: localhost
+   gather_facts: no
+   vars_files:
+     - var_files.yml
+   tasks:
+   - debug:
+       msg:
+        - "The value of X:{{x}}"
+        - "The value of Y:{{y}}"
+        - "The valune of Z:{{z}}" //command line argument

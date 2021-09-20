@@ -1,0 +1,16 @@
+---
+ - hosts: localhost
+   vars:
+     x : 5
+     y : "Satish using Ansible server"
+   gather_facts: yes
+   tasks:
+#   - debug: msg="welcome to Ansible"
+   - debug:
+      #var: inventory_hostname
+      msg: 
+       - "This is Ansible Test machine for the project LINCASE"
+       - "The hostname of remote server: {{inventory_hostname}}"
+       - "The value of this x is :{{x}}"
+       - "The value of this y is :{{y}}"
+       - "The value of this x is :{{x|type_debug}}"
